@@ -81,7 +81,7 @@ public class EmployeeService implements UserDetailsService{
 
 	public List<Employee> getAllEmployees() {
 		
-		System.out.println("Get Mapping - Service to get All Employees");
+		System.out.println("Get Mapping :: Service to get All Employees");
 		
 		List<Employee> employees = employeeRepo.findAll();
 		employees.forEach(emp ->{
