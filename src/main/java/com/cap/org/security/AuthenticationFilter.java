@@ -44,12 +44,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter{
 	public Authentication attemptAuthentication(HttpServletRequest request, 
 				HttpServletResponse response) throws AuthenticationException {
 		
-		System.out.println(LocalTime.now()+" Authentication In Progress");
+		System.out.println(LocalTime.now()+" Authentication In Progress ::: Git hub check");
 		List<Employee> employees = new ArrayList<>(); 
-		EmployeeService employeeService = new EmployeeService();
-		System.out.println("Checikng employeeService Instance : "+employeeService);
-		employees = employeeService.getAllEmployees();
-		System.out.println("List of Employees : "+employees);
+
 		try {
 			EmployeeLogin loginDetails = new ObjectMapper()
 						.readValue(request.getInputStream(), EmployeeLogin.class);
