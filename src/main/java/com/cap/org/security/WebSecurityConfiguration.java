@@ -43,11 +43,11 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter{
 		
 		http
 			.authorizeRequests()
-			.antMatchers("/employees/**")
+			.antMatchers("/**")
+			.permitAll();
 			//.hasIpAddress(environment.getProperty("gateway.ip"))
-			.permitAll()
-			.and()
-			.addFilter(new AuthenticationFilter());
+//			.and()
+//			.addFilter(new AuthenticationFilter());
 			
 	}
 	

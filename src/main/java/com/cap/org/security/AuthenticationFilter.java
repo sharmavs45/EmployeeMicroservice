@@ -30,15 +30,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter{
 
-	@Autowired
-	private EmployeeRepo employeeRepo;
-	
-//	@Autowired
-//	public AuthenticationFilter(EmployeeRepo employeeRepo) {
-//		System.out.println("Injecting EmployeeRepo to AuthenticationFilter : \n "+employeeRepo);
-//		this.employeeRepo = employeeRepo;
-//	}
-
 	
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, 
@@ -63,7 +54,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter{
 					loginDetails.getPassword(),
 					(Collection<? extends GrantedAuthority>) employees);
 					//new ArrayList<>());
-					
+					//setAuthenticationManager(authenticationManager);
 			System.out.println("usernamePasswordAuthenticationToken -> "+usernamePasswordAuthenticationToken.toString());
 			return getAuthenticationManager().authenticate(usernamePasswordAuthenticationToken); 
 					

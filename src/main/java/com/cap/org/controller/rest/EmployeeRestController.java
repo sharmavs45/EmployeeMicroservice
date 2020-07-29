@@ -1,5 +1,6 @@
 package com.cap.org.controller.rest;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -69,14 +70,19 @@ public class EmployeeRestController {
 		return new ResponseEntity<List<Employee>>(employees, HttpStatus.FOUND);
 	}
 	
+	@GetMapping("/service-status")
+	public String employeeServiceStatus(){
+		
+		return "Running At "+LocalDateTime.now()+" \n On Port : "+
+		environment.getProperty("local.server.port")+"  ";
+	}
 	
 	@GetMapping
-	public String getEmployees(){
+	public ResponseEntity<List<Employee>> getEmployees(){
 		
 		List<Employee> employees =  employeeService.getAllEmployees();
 	
-		return "At "+LocalTime.now()+" On Port : "+
-							environment.getProperty("local.server.port")+"  "+employees;
+		return new ResponseEntity<List<Employee>>(employees, HttpStatus.FOUND);
 	}
 	
 	
