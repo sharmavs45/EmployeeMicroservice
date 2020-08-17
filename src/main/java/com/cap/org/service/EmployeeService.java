@@ -9,6 +9,8 @@ import javax.transaction.Transactional;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.userdetails.User;
@@ -28,6 +30,8 @@ import lombok.NoArgsConstructor;
 @Service
 @NoArgsConstructor
 public class EmployeeService implements UserDetailsService{
+	
+	private Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 		
 	EmployeeRepo employeeRepo;	
 	BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -37,9 +41,9 @@ public class EmployeeService implements UserDetailsService{
 	public EmployeeService(EmployeeRepo employeeRepo, 
 				BCryptPasswordEncoder bCryptPasswordEncoder,
 				Environment environment) {
-		System.out.println("EmployeeRepo  Injected to Service : "+employeeRepo.toString());
-		System.out.println("BCryptPasswordEncoder  Injected to Service : "+bCryptPasswordEncoder.toString());
-		System.out.println("Accepting Incoming Requests from only IP : "+environment.getProperty("gateway.ip"));
+		logger.info("EmployeeRepo  Injected to Service : "+employeeRepo.toString());
+		logger.info("BCryptPasswordEncoder  Injected to Service : "+bCryptPasswordEncoder.toString());
+		logger.info("Accepting Incoming Requests from only IP : "+environment.getProperty("gateway.ip"));
 		
 		this.employeeRepo = employeeRepo;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
@@ -48,31 +52,31 @@ public class EmployeeService implements UserDetailsService{
 	
 //	@PostConstruct
 //	public void employeeServicePostConstruct() {
-//		System.out.println("EmployeeService has been registered with IOC");
+//		logger.info("EmployeeService has been registered with IOC");
 //	}
 //	
 //	@PreDestroy
 //	public void employeeServicePreDestroy() {
-//		System.out.println("EmployeeService has been Destroyed from IOC");
+//		logger.info("EmployeeService has been Destroyed from IOC");
 //	}
 //	
 //	//No Args Constructor
 //	public EmployeeService() {
-//		System.out.println("EmployeeService Constructor");
+//		logger.info("EmployeeService Constructor");
 //	}
 
 	
 
 	public List<Employee> getSpecificEmployees(String name, double salary) {
 		
-		System.out.println("Get Mapping with Request Parameters : Name = "+name
+		logger.info("Get Mapping with Request Parameters : Name = "+name
 				+" Salary = "+salary);
 		
 		//List<Employee> employees = employeeRepo.findSpecifiedEmployees(name, salary);
 		List<Employee> employees = employeeRepo.findAll();
-		System.out.println("Employees count = "+employees.size());
+		logger.info("Employees count = "+employees.size());
 		employees.forEach(emp ->{
-			System.out.println(" "+emp);
+			logger.info(" "+emp);
 		});
 		
 		
@@ -81,11 +85,11 @@ public class EmployeeService implements UserDetailsService{
 
 	public List<Employee> getAllEmployees() {
 		
-		System.out.println("Get Mapping :: Service to get All Employees");
+		logger.info("Get Mapping :: Service to get All Employees");
 		
 		List<Employee> employees = employeeRepo.findAll();
 		employees.forEach(emp ->{
-			System.out.println(" "+emp);
+			logger.info(" "+emp);
 		});
 		
 		return employees;
@@ -95,18 +99,18 @@ public class EmployeeService implements UserDetailsService{
 		
 		
 		String encryptedPassword = bCryptPasswordEncoder.encode(employeeRec.getPassword());
-		System.out.println("Encrypted Password to be stored in DB : "+encryptedPassword);
+		logger.info("Encrypted Password to be stored in DB : "+encryptedPassword);
 		
 		employeeRec.setEmployeeId(0);
 		employeeRec.setPassword(encryptedPassword);
 		Integer maxId = employeeRepo.getMaxEmployeeId();
 		
 		if(maxId==null) {
-			System.out.println("First record in DB : "+employeeRec.getName()+0);
+			logger.info("First record in DB : "+employeeRec.getName()+0);
 			employeeRec.setUsername(employeeRec.getName()+0);
 		}
 		else {
-			System.out.println("Creating username : "+employeeRec.getName()+(maxId+1));
+			logger.info("Creating username : "+employeeRec.getName()+(maxId+1));
 			employeeRec.setUsername(employeeRec.getName()+(maxId+1));
 		}
 		
@@ -115,32 +119,35 @@ public class EmployeeService implements UserDetailsService{
 		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 		
 		
-		System.out.println("Received Employee : "+employeeRec);
-		System.out.println("Model Mapped Employee : "+employee);
+		logger.info("Received Employee : "+employeeRec);
+		logger.info("Model Mapped Employee : "+employee);
 		
-		System.out.println(LocalTime.now()+"Saving Employee : "+employee);		
+		logger.info(LocalTime.now()+"Saving Employee : "+employee);		
 		employeeRepo.save(employee);
 		
 	}
 
 	public Employee getEmployeeById(int id) {
 		
-		System.out.println(LocalTime.now()+" Getting Employee by Id Service "+id);
+		logger.info(LocalTime.now()+" Getting Employee by Id Service "+id);
 		
 		Optional<Employee> employee = employeeRepo.findById(id);
+		logger.error("optional Employee by Query : "+employee);
 		
 		if(employee.isPresent()) {
 			Employee emp = employee.get();
 			return emp;
 		}
-		else
+		else {
+			logger.error("User Not Found for username : "+id);
 			throw new MyCustomException(LocalTime.now()+" Employee Does not Exist with ID : "+id);
+		}
 		
 	}
 
 	public Employee updateEmployee(Employee employee, int id) {		
 
-		System.out.println("Updating Employee Service -  with ID :"+id+"  "+employee);
+		logger.info("Updating Employee Service -  with ID :"+id+"  "+employee);
 		Optional<Employee> employeeExisting = employeeRepo.findById(id);
 		
 		if(employeeExisting.isPresent()) {
@@ -155,7 +162,7 @@ public class EmployeeService implements UserDetailsService{
 			
 			return emp;
 		}else {
-			System.out.println(LocalTime.now()+" No Employee Exists with :"+id+" : Creating New "+employee);
+			logger.info(LocalTime.now()+" No Employee Exists with :"+id+" : Creating New "+employee);
 			employeeRepo.save(employee);
 			return employee;
 		}
@@ -164,7 +171,7 @@ public class EmployeeService implements UserDetailsService{
 
 	public void deleteEmployeeById(int id) throws Exception {
 		
-		System.out.println(LocalTime.now()+" Deleting Employee Service with ID :"+id);
+		logger.info(LocalTime.now()+" Deleting Employee Service with ID :"+id);
 		
 		Optional<Employee> employeeExisting = employeeRepo.findById(id);
 		if(employeeExisting.isPresent()) {
@@ -179,7 +186,7 @@ public class EmployeeService implements UserDetailsService{
 	public Employee patchEmployee(Employee employeeRec, int id) {
 		
 		Optional<Employee> employeeExisting = employeeRepo.findById(id);
-		System.out.println(LocalTime.now()+" Patch Employee Service -  with ID :"+id+"  "+employeeRec);
+		logger.info(LocalTime.now()+" Patch Employee Service -  with ID :"+id+"  "+employeeRec);
 		
 		if(employeeExisting.isPresent()) {
 			Employee patchEmployee = employeeExisting.get();
@@ -191,7 +198,7 @@ public class EmployeeService implements UserDetailsService{
 			
 			employeeRepo.save(patchEmployee);
 		}else {
-			System.out.println(LocalTime.now()+" No Employee Exists with :"+id);
+			logger.error(LocalTime.now()+" No Employee Exists with :"+id);
 			throw new MyCustomException(LocalTime.now()+" No Employee Exists with :"+id);
 		}
 		
@@ -201,16 +208,17 @@ public class EmployeeService implements UserDetailsService{
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		
-		System.out.println(LocalTime.now()+" loadUserByUsername With userId : "+username);
+		logger.info(LocalTime.now()+" loadUserByUsername With userId : "+username);
 		
 		Optional<Employee> employeeOpt = employeeRepo.findByUsername(username);
 		
-		System.out.println("Optional Employee : "+employeeOpt);
+		logger.info("Optional Employee : "+employeeOpt);
 		Employee employee = null;
 		if(employeeOpt.isPresent()) {
 			employee = employeeOpt.get();
-			System.out.println("Employee for username : "+username+"  -> "+employee.toString());
+			logger.info("Employee for username : "+username+"  -> "+employee.toString());
 		}else {
+			logger.error("User Not Found for username : "+username);
 			throw new MyCustomException("User Not Found for username : "+username);
 		}
 		

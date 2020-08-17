@@ -31,7 +31,6 @@ public class Employee implements Comparable<Employee> {
 	@Column(name = "employee_id")
 	private int employeeId;
 	
-	//@Email
 	@NotNull(message = "Name Should not be Empty")
 	private String name;
 	
@@ -42,7 +41,6 @@ public class Employee implements Comparable<Employee> {
 	@Max(value = 100, message = "Age Must be Less than 100")
 	private int age;
 	
-	//@NotNull
 	private String username;
 	
 	@NotNull

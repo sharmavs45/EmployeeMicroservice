@@ -37,44 +37,14 @@ public class EmployeeRestController {
 	
 	@Autowired
 	private Environment environment;
-
-	
-	/*
-	 * @PostMapping("/login") public Employee login(@RequestBody EmployeeLogin
-	 * loginDetails) {
-	 * 
-	 * return null; }
-	 */
-	
-	@PostMapping("/parseJson")
-	//public String parseJsonWithoutPojo(JsonAutoDetect json) {
-	public String parseJsonWithoutPojo(JsonXStream json) {
-		//JsonXStream jsonXStream = new JsonXStream();
-		//jsonXStream.fromXML(json);
-		
-		ObjectMapper omJson = new ObjectMapper();
-		//omJson.readValue(json, JSONObject.class);
-		
-		
-		System.out.println("Reading JSON : "+json.toString());
-		return "Parsing Successful";
-	}
-	
-	@GetMapping("/param")
-	public ResponseEntity<List<Employee>> getSpecificEmployees(
-				@RequestParam(value = "name", defaultValue="") String name, 
-				@RequestParam(value ="salary", defaultValue="0") double salary){
-		
-		List<Employee> employees = employeeService.getSpecificEmployees(name, salary);
-		
-		return new ResponseEntity<List<Employee>>(employees, HttpStatus.FOUND);
-	}
 	
 	@GetMapping("/service-status")
 	public String employeeServiceStatus(){
 		
-		return "Running At "+LocalDateTime.now()+" \n On Port : "+
-		environment.getProperty("local.server.port")+"  ";
+		return "Running At "+LocalDateTime.now()+
+				" \n On Port : "+		environment.getProperty("local.server.port")+
+				" \n Secret Token "+		environment.getProperty("token.secret")+
+				" \n Token Expiration time "+environment.getProperty("token.expiration.time");
 	}
 	
 	@GetMapping
